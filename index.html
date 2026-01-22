@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cartel de la Luna Roya</title>
+<style>
+:root{
+  --black-900:#070707;
+  --black-800:#0e0e0e;
+  --gray-600:#2c2c2c;
+  --white:#fff;
+  --neon-red:#ff1a1a;
+}
+
+/* Basic resets */
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:Segoe UI,Roboto,Arial,sans-serif;
+  background:var(--black-900);
+  color:var(--white);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* Smoke */
+.smoke-layer{
+  position:fixed;inset:0;pointer-events:none;
+  background:radial-gradient(circle,rgba(255,26,26,.05),transparent 75%);
+  animation:smoke 90s linear infinite;
+}
+@keyframes smoke{
+  0%{transform:translate(0,0)}
+  50%{transform:translate(40px,-40px)}
+  100%{transform:translate(0,0)}
+}
+
+/* Lobby */
+#lobby{
+  position:fixed;inset:0;
+  display:flex;flex-direction:column;
+  justify-content:center;align-items:center;
+  z-index:10;
+}
+#lobby h1{
+  font-size:4rem;
+  color:var(--neon-red);
+  text-shadow:0 0 30px rgba(255,26,26,.7);
+  margin-bottom:40px;
+  text-align:center;
+}
+.lobby-buttons{
+  display:flex;
+  gap:20px;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+.lobby-buttons button{
+  padding:14px 28px;
+  background:transparent;
+  border:1px solid var(--neon-red);
+  color:#fff;
+  border-radius:12px;
+  cursor:pointer;
+  font-weight:600;
+  transition:.3s;
+}
+.lobby-buttons button:hover{
+  box-shadow:0 0 20px rgba(255,26,26,.7);
+}
+
+/* Back */
+#backLobby{
+  position:fixed;
+  top:25px;left:25px;
+  font-size:2rem;
+  color:var(--neon-red);
+  cursor:pointer;
+  opacity:0;
+  transition:.4s;
+  z-index:20;
+}
+#backLobby.visible{opacity:1}
+
+/* Sections */
+main{
+  padding:80px 20px;
+  display:flex;
+  justify-content:center;
+}
+section{
+  width:100%;
+  max-width:900px;
+  background:var(--black-800);
+  padding:36px;
+  border-radius:14px;
+  box-shadow:0 0 30px rgba(255,26,26,.3);
+  display:none;
+  opacity:0;
+  transform:translateY(20px);
+  transition:.6s;
+}
+section.active{
+  display:block;
+  opacity:1;
+  transform:translateY(0);
+}
+h2{
+  text-align:center;
+  color:var(--neon-red);
+  margin-bottom:24px;
+}
+
+/* Form */
+label{display:block;margin-bottom:6px;color:#c9c9c9}
+input,textarea{
+  width:100%;
+  padding:12px;
+  background:#070707;
+  color:#fff;
+  border:1px solid var(--gray-600);
+  border-radius:8px;
+  margin-bottom:18px;
+}
+textarea{resize:none}
+input:focus,textarea:focus{
+  outline:none;
+  border-color:var(--neon-red);
+  box-shadow:0 0 10px rgba(255,26,26,.6);
+}
+
+/* Fancy button */
+.fancy-button{
+  padding:16px 36px;
+  border:2px solid var(--neon-red);
+  background:transparent;
+  color:var(--neon-red);
+  font-weight:700;
+  border-radius:14px;
+  cursor:pointer;
+  transition:.3s;
+}
+.fancy-button:hover{
+  color:#fff;
+  box-shadow:0 0 25px rgba(255,26,26,.9);
+}
+
+/* Status */
+.status{
+  text-align:center;
+  margin-top:18px;
+  font-weight:700;
+  opacity:0;
+  transition:.5s;
+  color:#ff1a1a;
+}
+
+/* Admin modal */
+#adminLoginModal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.85);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:100;
+}
+#adminLoginModal.show{
+  display:flex;
+  animation:modalIn 0.5s ease forwards;
+}
+#adminLoginModal .box{
+  width:320px;
+  background:#0e0e0e;
+  padding:30px;
+  border-radius:14px;
+  box-shadow:0 0 30px rgba(255,26,26,.6);
+  transform:scale(0.8);
+  opacity:0;
+}
+#adminLoginModal.show .box{
+  transform:scale(1);
+  opacity:1;
+  transition:transform 0.5s ease, opacity 0.5s ease;
+}
+@keyframes modalIn{
+  0%{opacity:0; transform:scale(0.8);}
+  100%{opacity:1; transform:scale(1);}
+}
+
+/* Admin panel log */
+#adminPanel .log-entry{
+  border-bottom:1px solid var(--gray-600);
+  padding:12px 0;
+  font-size:0.9rem;
+  position: relative;
+}
+#adminPanel .log-entry span{color:#fff; display:block;}
+#adminPanel .log-entry button{
+  position:absolute;
+  top:10px; right:10px;
+  background:#ff1a1a;
+  border:none;
+  color:#fff;
+  padding:4px 8px;
+  border-radius:6px;
+  cursor:pointer;
+}
+#adminPanel .log-entry:last-child{border-bottom:none;}
+</style>
+</head>
+<body>
+
+<div class="smoke-layer"></div>
+
+<!-- Lobby -->
+<div id="lobby">
+  <h1>Cartel de la Luna Roya</h1>
+  <div class="lobby-buttons">
+    <button onclick="openSection('prijava')">PRIJAVA</button>
+    <button onclick="openSection('obleke')">OBLEKE</button>
+    <button onclick="openSection('vozila')">VOZILA</button>
+    <button onclick="openSection('oprema')">OPREMA</button>
+    <button onclick="openAdminLogin()">ADMIN PANEL</button>
+  </div>
+</div>
+
+<div id="backLobby" onclick="showLobby()">← LOBBY</div>
+
+<main>
+<section id="prijava">
+  <h2>Prijavni obrazec</h2>
+  <form id="applicationForm">
+    <label>Polno ime</label>
+    <input id="name" required>
+    <label>Starost</label>
+    <input id="age" type="number" min="15" required>
+    <label>Discord</label>
+    <input id="discord" required>
+    <label>Vloga</label>
+    <input id="role" required>
+    <label>Pretekle izkušnje</label>
+    <textarea id="experience"></textarea>
+    <label>Zakaj se želiš pridružiti?</label>
+    <textarea id="reason" required></textarea>
+    <button class="fancy-button" type="submit">ODDAJ PRIJAVO</button>
+  </form>
+  <div id="status" class="status"></div>
+</section>
+
+<section id="obleke"><h2>Obleke</h2></section>
+<section id="vozila"><h2>Vozila</h2></section>
+<section id="oprema"><h2>Oprema</h2></section>
+
+<section id="adminPanel">
+  <h2>Admin Panel</h2>
+  <div id="adminLog"></div>
+  <button class="fancy-button" onclick="logoutAdmin()">Logout</button>
+</section>
+
+<!-- Admin Login Modal -->
+<div id="adminLoginModal">
+  <div class="box">
+    <h2 style="color:#ff1a1a;text-align:center;margin-bottom:20px;">Admin Access</h2>
+    <input id="adminUser" type="text" placeholder="Admin email" autocomplete="username">
+    <input id="adminPass" type="password" placeholder="Admin password" autocomplete="current-password">
+    <button class="fancy-button" onclick="checkAdminLogin()">Verify</button>
+    <div id="adminLoginStatus" class="status"></div>
+    <div style="text-align:center;margin-top:10px;cursor:pointer;color:#ff1a1a;" onclick="closeAdminLogin()">← Nazaj</div>
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-firestore.js";
+
+// Firebase config
+const firebaseConfig = {
+    apiKey: "AIzaSyBPyCHN-CRjnMBp44W5a2zW9J4v6d2noPs",
+    authDomain: "carteldelalunroya.firebaseapp.com",
+    projectId: "carteldelalunroya",
+    storageBucket: "carteldelalunroya.firebasestorage.app",
+    messagingSenderId: "1082847284595",
+    appId: "1:1082847284595:web:403dd67b78f987e5a38906",
+    measurementId: "G-QG0MT3ZTH3"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+async function saveApplication(data){ return await addDoc(collection(db,"applications"),data); }
+async function fetchApplications(){
+  const snapshot = await getDocs(collection(db,"applications"));
+  return snapshot.docs.map(doc=>({id:doc.id,...doc.data()}));
+}
+async function deleteApplication(id){ await deleteDoc(doc(db,"applications",id)); }
+
+window.saveApplication=saveApplication;
+window.fetchApplications=fetchApplications;
+window.deleteApplication=deleteApplication;
+</script>
+
+<script>
+// Sections
+const sections = document.querySelectorAll("section");
+function openSection(id){ hideLobby(); sections.forEach(s=>{s.style.display="none"; s.classList.remove("active");}); const sec=document.getElementById(id); sec.style.display="block"; setTimeout(()=>sec.classList.add("active"),50); document.getElementById("backLobby").classList.add("visible"); }
+function hideLobby(){document.getElementById("lobby").style.display="none";}
+function showLobby(){document.getElementById("lobby").style.display="flex"; document.getElementById("backLobby").classList.remove("visible"); sections.forEach(s=>{s.style.display="none"; s.classList.remove("active");}); }
+
+// Admin login
+const ADMIN_EMAIL_HASH=btoa("milevteo.9@gmail.com");
+const ADMIN_PASS_HASH=btoa("jAGLdk3s#");
+const adminUserInput=document.getElementById("adminUser");
+const adminPassInput=document.getElementById("adminPass");
+const adminLoginStatus=document.getElementById("adminLoginStatus");
+const adminLoginModal=document.getElementById("adminLoginModal");
+function openAdminLogin(){adminLoginModal.classList.add("show"); adminUserInput.value=""; adminPassInput.value=""; adminLoginStatus.textContent="";}
+function closeAdminLogin(){adminLoginModal.classList.remove("show");}
+function checkAdminLogin(){
+  const email=btoa(adminUserInput.value.trim());
+  const pass=btoa(adminPassInput.value);
+  if(email===ADMIN_EMAIL_HASH && pass===ADMIN_PASS_HASH){
+    adminLoginModal.classList.remove("show");
+    openSection("adminPanel");
+    loadAdminPanel();
+  } else {
+    adminLoginStatus.style.color="#ff4d4d";
+    adminLoginStatus.textContent="❌ Dostop zavrnjen.";
+  }
+}
+function logoutAdmin(){showLobby();}
+
+// Prijava form
+const applicationForm=document.getElementById("applicationForm");
+const status=document.getElementById("status");
+const adminLog=document.getElementById("adminLog");
+
+applicationForm.addEventListener("submit", async e=>{
+  e.preventDefault();
+  const data={
+    name:document.getElementById("name").value,
+    age:document.getElementById("age").value,
+    discord:document.getElementById("discord").value,
+    role:document.getElementById("role").value,
+    experience:document.getElementById("experience").value||"—",
+    reason:document.getElementById("reason").value
+  };
+
+  await saveApplication(data);
+
+  status.textContent="PRIJAVA ODDANA";
+  status.style.opacity="1";
+
+  const formElements = Array.from(applicationForm.elements).filter(el=>el.tagName==="INPUT" || el.tagName==="TEXTAREA");
+  formElements.forEach(el=>{el.style.transition="opacity 1.5s"; el.style.opacity="0";});
+
+  setTimeout(()=>{
+    applicationForm.reset();
+    formElements.forEach(el=>el.style.opacity="1");
+    status.style.opacity="0";
+  },1600);
+
+  if(document.getElementById("adminPanel").style.display==="block") loadAdminPanel();
+});
+
+// Admin panel
+async function loadAdminPanel(){
+  adminLog.innerHTML="";
+  const allApps = await fetchApplications();
+  allApps.reverse().forEach(app=>{
+    const entry=document.createElement("div");
+    entry.classList.add("log-entry");
+    entry.innerHTML=`
+      <span><strong>Ime:</strong> ${app.name}</span>
+      <span><strong>Starost:</strong> ${app.age}</span>
+      <span><strong>Discord:</strong> ${app.discord}</span>
+      <span><strong>Vloga:</strong> ${app.role}</span>
+      <span><strong>Izkušnje:</strong> ${app.experience}</span>
+      <span><strong>Razlog:</strong> ${app.reason}</span>
+      <button onclick="deleteApp('${app.id}', this)">DELETE</button>
+    `;
+    adminLog.appendChild(entry);
+  });
+}
+async function deleteApp(id, btn){ await deleteApplication(id); btn.parentElement.remove(); }
+</script>
+</body>
+</html>
